@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f9d8f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bahareh OS">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Bahareh OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--teal:#0f9d8f;--tl:#e3f5f3;--pur:#6d4bd1;--pl:#f1edfc;--tx:#2f3437;--mu:#6b7378;--bg:#fbfcfd;--cd:#fff;--ln:#d9dee2}
+@media (prefers-color-scheme:dark){:root{--tx:#e8ecef;--mu:#9aa4aa;--bg:#14181b;--cd:#1d2226;--ln:#38414a;--tl:#12312f;--pl:#25203d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Vazirmatn,Tahoma,sans-serif;line-height:1.7;font-size:15px;padding-top:env(safe-area-inset-top,0px)}
+.w{max-width:640px;margin:0 auto;padding:14px 14px 100px}
+h1{font-size:20px;margin:0}h2{font-size:16px;margin:18px 0 8px}
+.top{display:flex;justify-content:space-between;align-items:center}
+.cd{background:var(--cd);border:1.5px solid var(--ln);border-radius:16px;padding:12px 14px;margin:8px 0}
+.cd.f{border-color:var(--teal);background:var(--tl)}
+input,select,textarea{font:inherit;color:var(--tx);background:var(--cd);border:1.5px solid var(--ln);border-radius:12px;padding:7px 10px;min-width:0}
+input[type=text],input[type=url],textarea{width:100%}
+button{font:inherit;border:0;border-radius:12px;padding:7px 14px;background:var(--teal);color:#fff;font-weight:600;cursor:pointer}
+button.g{background:transparent;color:var(--mu);border:1.5px solid var(--ln)}
+button.p{background:var(--pur)}
+.r{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tg{font-size:11px;font-weight:800;border-radius:8px;padding:0 8px;direction:ltr;display:inline-block;cursor:pointer}
+.core{background:var(--teal);color:#fff}.support{background:var(--pl);color:var(--pur);border:1px solid var(--pur)}.exp{border:1px dashed var(--mu);color:var(--mu)}
+.t{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--ln)}.t:last-child{border:0}
+.ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--teal);background:none;padding:0;flex:none;color:#fff}.ck.d{background:var(--teal)}
+.done .tt{text-decoration:line-through;color:var(--mu)}
+.st{font-size:12.5px;color:var(--mu)}
+.ed{border-bottom:1px dashed var(--ln);outline:0;min-width:24px;display:inline-block}.ed:focus{border-color:var(--pur);background:var(--pl)}
+.big{font-size:44px;font-weight:800;text-align:center;direction:ltr;letter-spacing:2px;color:var(--teal)}
+.bar{height:10px;border-radius:6px;background:var(--ln);overflow:hidden}.bar i{display:block;height:100%;background:var(--teal)}
+.dots{display:flex;gap:5px;direction:ltr}
+.dot{width:26px;height:26px;border-radius:8px;border:1.5px solid var(--ln);background:none;padding:0;font-size:10px;color:var(--mu)}.dot.on{background:var(--teal);border-color:var(--teal);color:#fff}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--cd);border-top:1.5px solid var(--ln);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px)}
+nav div{display:flex;max-width:640px;width:100%}
+nav button{flex:1;background:none;color:var(--mu);border-radius:0;padding:10px 2px;font-size:13px}nav button.on{color:var(--teal);box-shadow:inset 0 3px 0 var(--teal)}
+#to{position:fixed;left:12px;right:12px;bottom:calc(64px + env(safe-area-inset-bottom,0px));background:#2f3437;color:#fff;border-radius:14px;padding:10px 14px;display:none;justify-content:space-between;align-items:center;max-width:616px;margin:auto}
+#to button{background:var(--pur);padding:4px 12px}
+svg text{font-family:inherit}
+</style>
+</head>
+<body>
+<div class="w"><div class="top"><h1>Bahareh <span style="color:var(--pur)">OS</span></h1><span class="st" id="sy">…</span></div><div id="v"></div></div>
+<div id="to"><span id="tm2"></span><button id="ub">برگردان</button></div>
+<nav><div id="nv"></div></nav>
+<script>
+var TABS=[["today","امروز"],["proj","پروژه‌ها"],["hab","عادت‌ها"],["cap","سرمایه"],["rep","گزارش"]];
+var TG={core:"CORE",support:"SUPPORT",exp:"EXPERIMENT"},NX={core:"support",support:"exp",exp:"core"};
+var tab="today",S=null,SET={},timer=null,left=1500,saveT=null,toT=null,prevS=null;
+var $=function(s){return document.querySelector(s)};
+function lc(d){d=d||new Date();return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)}
+var td=lc();
+function day(n){var d=new Date();d.setDate(d.getDate()-n);return lc(d)}
+function fa(d){return new Date(d+"T12:00").toLocaleDateString("fa-IR",{weekday:"short",day:"numeric",month:"short"})}
+function nf(n){return Number(n||0).toLocaleString("fa-IR")}
+function num(s){return +String(s).replace(/[۰-۹]/g,function(d){return"۰۱۲۳۴۵۶۷۸۹".indexOf(d)}).replace(/[^\d.]/g,"")||0}
+function uid(){return Math.random().toString(36).slice(2,8)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function def(){return{ts:0,tasks:[],inbox:[],focus:{},rev:{},
+projects:[{id:"p1",n:"Bina Data",tag:"core",next:"",pct:0},{id:"p2",n:"Product Discovery Agent",tag:"exp",next:"",pct:0},{id:"p3",n:"Dropshipping",tag:"exp",next:"",pct:0}],
+habits:["انگلیسی","ورزش","تغذیه","تمرکز"].map(function(n,i){return{id:"h"+i,n:n,log:{}}}),
+sav:{target:0,now:0,monthly:0,log:[]}}}
+function sync(t){$("#sy").textContent=t}
+function save(){S.ts=Date.now();try{localStorage.setItem("bos",JSON.stringify(S))}catch(e){}
+ clearTimeout(saveT);sync("…");saveT=setTimeout(push,1200)}
+async function push(){
+ if(!SET.url){sync("ذخیره محلی");return}
+ try{await fetch(SET.url,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify({token:SET.tok,state:S})});
+  sync("ارسال به شیت ✓ "+new Date().toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"}))}catch(e){sync("آفلاین؛ محلی ذخیره شد")}}
+async function pull(force){
+ if(!SET.url)return"آدرس شیت تنظیم نشده";
+ try{var r=await fetch(SET.url+"?token="+encodeURIComponent(SET.tok||"")),j=await r.json();
+  if(!j.ok||!j.state)return"شیت جواب معتبر نداد (توکن یا آدرس را چک کن)";
+  if(force||(j.state.ts||0)>S.ts){S=Object.assign(def(),j.state);try{localStorage.setItem("bos",JSON.stringify(S))}catch(e){}render();return"از شیت بازیابی شد ✓"}
+  return"داده‌ی این دستگاه جدیدتر است"}catch(e){return"اتصال به شیت ممکن نشد"}}
+function init(){S=def();
+ try{var l=localStorage.getItem("bos");if(l)S=Object.assign(def(),JSON.parse(l));SET=JSON.parse(localStorage.getItem("bos-set")||"{}")}catch(e){}
+ render();sync(SET.url?"شیت وصل است":"ذخیره محلی");if(SET.url)pull(false).then(function(m){sync(m)})}
+function toast(msg,snap){prevS=snap;$("#tm2").textContent=msg;$("#to").style.display="flex";clearTimeout(toT);toT=setTimeout(function(){$("#to").style.display="none"},6000)}
+$("#ub").onclick=function(){if(prevS){S=JSON.parse(prevS);prevS=null;save();render()}$("#to").style.display="none"};
+function rm(fn,msg){var p=JSON.stringify(S);fn();save();render();toast(msg||"حذف شد",p)}
+function tagSel(id){return'<select id="'+id+'"><option value="core">CORE</option><option value="support">SUPPORT</option><option value="exp">EXPERIMENT</option></select>'}
+function tagB(t,k,id){return'<span class="tg '+t+'" onclick="ct(\''+k+'\',\''+id+'\')" title="تغییر نوع">'+TG[t]+'</span>'}
+function ct(k,id){(k=="t"?S.tasks:S.projects).forEach(function(o){if(o.id==id)o.tag=NX[o.tag]});save();render()}
+function ed(k,id,f,v,ph){return'<span class="ed" contenteditable="true" data-ph="'+esc(ph||"")+'" onblur="E(this,\''+k+'\',\''+id+'\',\''+f+'\')" onkeydown="if(event.key==\'Enter\'){event.preventDefault();this.blur()}">'+esc(v)+'</span>'}
+function E(el,k,id,f){var v=el.textContent.trim(),L={t:S.tasks,p:S.projects,h:S.habits};
+ if(k=="ib"){if(!v){rm(function(){S.inbox.splice(+id,1)});return}S.inbox[+id]=v;save();return}
+ if(k=="sl"){var o=S.sav.log[+id],n=num(v);S.sav.now=(+S.sav.now||0)+n-o.a;o.a=n;save();render();return}
+ var o=L[k].filter(function(x){return x.id==id})[0];if(!o)return;
+ if(!v&&f!="step"&&f!="next"){render();return}o[f]=v;save()}
+function render(){
+ $("#nv").innerHTML=TABS.map(function(t){return'<button class="'+(t[0]==tab?"on":"")+'" onclick="go(\''+t[0]+'\')">'+t[1]+'</button>'}).join("");
+ $("#v").innerHTML=({today:vToday,proj:vProj,hab:vHab,cap:vCap,rep:vRep})[tab]()}
+function go(t){tab=t;render();window.scrollTo(0,0)}
+function mm(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+/* TODAY */
+function vToday(){
+ var tod=S.tasks.filter(function(t){return t.date==td}),open=tod.filter(function(t){return!t.done}),late=S.tasks.filter(function(t){return!t.done&&t.date<td}),nx=open[0];
+ var h='<div class="top"><small class="st">'+fa(td)+'</small><small class="st">تمرکز امروز: '+nf(S.focus[td]||0)+' جلسه</small></div>';
+ h+='<div class="cd f"><div class="st">فقط یک قدم بعدی</div>'+(nx?'<div style="font-size:18px;font-weight:800">'+esc(nx.t)+'</div>'+(nx.step?'<div class="st">شروع خیلی کوچک: '+esc(nx.step)+'</div>':""):'<div>کاری برای شروع نیست. یک کار کوچک اضافه کن یا استراحت کن.</div>')+
+ '<div class="big" id="tm">'+mm(left)+'</div><div class="r" style="justify-content:center"><button onclick="tmGo()">'+(timer?"توقف":"شروع ۲۵ دقیقه")+'</button><button class="g" onclick="tmReset()">ریست</button></div></div>';
+ var core=open.filter(function(t){return t.tag=="core"}).length;
+ h+='<h2>کارهای امروز <small class="st">(روی متن بزن تا ویرایش شود)</small></h2><div class="cd">';
+ if(late.length)h+='<div class="st">عقب‌افتاده: '+late.map(function(t){return esc(t.t)+' <a href="#" onclick="mv(\''+t.id+'\');return false">→ امروز</a>'}).join("، ")+'</div>';
+ h+=tod.length?tod.map(row).join(""):'<div class="st">هنوز خالیه.</div>';
+ h+='</div><div class="cd"><input type="text" id="nt" placeholder="کار جدید"><input type="text" id="ns" style="margin-top:6px" placeholder="اولین قدم خیلی کوچک (اختیاری)"><div class="r" style="margin-top:6px">'+tagSel("ng")+'<button onclick="addT()">افزودن</button></div>'+(core>=3?'<div class="st" style="color:var(--pur)">۳ کار CORE داری؛ بقیه بره برای فردا؟</div>':"")+'</div>';
+ h+='<h2>تخلیه ذهن</h2><div class="cd"><div class="r"><input type="text" id="ib" style="flex:1" placeholder="هر چی توی ذهنته بنویس" onkeydown="if(event.key==\'Enter\')addI()"><button class="p" onclick="addI()">ثبت</button></div>'+
+ S.inbox.map(function(x,i){return'<div class="t"><div style="flex:1">'+ed("ib",i,"",x)+'</div><button class="g" onclick="i2t('+i+')">→ امروز</button><button class="g" onclick="rm(function(){S.inbox.splice('+i+',1)})">✕</button></div>'}).join("")+'</div>';
+ return h}
+function row(t){return'<div class="t '+(t.done?"done":"")+'"><button class="ck '+(t.done?"d":"")+'" onclick="tg(\''+t.id+'\')">'+(t.done?"✓":"")+'</button><div style="flex:1"><div class="tt">'+ed("t",t.id,"t",t.t)+' '+tagB(t.tag,"t",t.id)+'</div><div class="st">'+ed("t",t.id,"step",t.step,"")+(t.step?"":'<span style="opacity:.6">+ قدم کوچک</span>')+'</div></div><button class="g" onclick="rm(function(){S.tasks=S.tasks.filter(function(x){return x.id!=\''+t.id+'\'})})">✕</button></div>'}
+function addT(){var t=$("#nt").value.trim();if(!t)return;S.tasks.push({id:uid(),t:t,step:$("#ns").value.trim(),tag:$("#ng").value,date:td,done:false});save();render()}
+function tg(id){S.tasks.forEach(function(t){if(t.id==id){t.done=!t.done;t.at=t.done?td:null}});save();render()}
+function mv(id){S.tasks.forEach(function(t){if(t.id==id)t.date=td});save();render()}
+function addI(){var v=$("#ib").value.trim();if(!v)return;S.inbox.unshift(v);save();render()}
+function i2t(i){S.tasks.push({id:uid(),t:S.inbox[i],step:"",tag:"support",date:td,done:false});S.inbox.splice(i,1);save();render()}
+function tmGo(){if(timer){clearInterval(timer);timer=null;render();return}
+ timer=setInterval(function(){left--;var e=$("#tm");if(e)e.textContent=mm(left);
+  if(left<=0){clearInterval(timer);timer=null;left=1500;S.focus[td]=(S.focus[td]||0)+1;save();try{navigator.vibrate&&navigator.vibrate([300,150,300])}catch(x){}render()}},1000);render()}
+function tmReset(){clearInterval(timer);timer=null;left=1500;render()}
+/* PROJECTS */
+function vProj(){
+ return'<h2>پروژه‌ها</h2><div class="st">فقط یک پروژه‌ی CORE اصلی. نام و نوع را با لمس تغییر بده.</div>'+S.projects.map(function(p){
+ return'<div class="cd"><div class="r"><b style="flex:1">'+ed("p",p.id,"n",p.n)+'</b>'+tagB(p.tag,"p",p.id)+'<button class="g" onclick="rm(function(){S.projects=S.projects.filter(function(x){return x.id!=\''+p.id+'\'})})">✕</button></div>'+
+ '<div class="st" style="margin:6px 0">قدم بعدی: '+ed("p",p.id,"next",p.next)+(p.next?"":'<span style="opacity:.6">بنویس…</span>')+'</div>'+
+ '<div class="r"><input type="range" min="0" max="100" value="'+p.pct+'" style="flex:1" onchange="up(\''+p.id+'\',+this.value)"><span>'+nf(p.pct)+'٪</span></div></div>'}).join("")+
+ '<div class="cd"><div class="r"><input type="text" id="pn" style="flex:1" placeholder="پروژه جدید">'+tagSel("pg")+'<button onclick="addP()">افزودن</button></div></div>'}
+function up(id,v){S.projects.forEach(function(p){if(p.id==id)p.pct=v});save();render()}
+function addP(){var n=$("#pn").value.trim();if(!n)return;S.projects.push({id:uid(),n:n,tag:$("#pg").value,next:"",pct:0});save();render()}
+/* HABITS */
+function streak(h){var c=0,m=0;for(var i=0;i<400;i++){if(h.log[day(i)]){c++;m=0}else{if(i==0)continue;m++;if(m>=2)break}}return c}
+function vHab(){
+ return'<h2>عادت‌ها</h2><div class="st">هیچ‌وقت دو روز پشت‌سرهم از قلم نیفتد؛ یک روز جا بیفتد رشته نمی‌شکند.</div>'+S.habits.map(function(h){
+ var d="";for(var i=6;i>=0;i--){var k=day(i);d+='<button class="dot '+(h.log[k]?"on":"")+'" onclick="hg(\''+h.id+'\',\''+k+'\')">'+nf(new Date(k+"T12:00").getDate())+'</button>'}
+ return'<div class="cd"><div class="r"><b style="flex:1">'+ed("h",h.id,"n",h.n)+'</b><span class="st">رشته: '+nf(streak(h))+' روز</span><button class="g" onclick="rm(function(){S.habits=S.habits.filter(function(x){return x.id!=\''+h.id+'\'})})">✕</button></div><div class="dots" style="margin-top:6px">'+d+'</div></div>'}).join("")+
+ '<div class="cd"><div class="r"><input type="text" id="hn" style="flex:1" placeholder="عادت جدید"><button onclick="addH()">افزودن</button></div></div>'}
+function hg(id,k){S.habits.forEach(function(h){if(h.id==id){if(h.log[k])delete h.log[k];else h.log[k]=1}});save();render()}
+function addH(){var n=$("#hn").value.trim();if(!n)return;S.habits.push({id:uid(),n:n,log:{}});save();render()}
+/* CAPITAL */
+function vCap(){var s=S.sav,p=s.target>0?Math.min(100,s.now/s.target*100):0,rest=s.target-s.now,mo=s.monthly>0&&rest>0?Math.ceil(rest/s.monthly):null;
+ return'<h2>سرمایه تا خانه</h2><div class="cd"><div class="st">هدف: خانه ۱۱۰ متر+، ۲ خوابه، پارکینگ، انباری</div>'+
+ '<div class="r" style="margin:8px 0"><label style="flex:1">هدف (تومان)<input type="number" inputmode="numeric" value="'+(s.target||"")+'" onchange="sv(\'target\',this.value)"></label><label style="flex:1">فعلی<input type="number" inputmode="numeric" value="'+(s.now||"")+'" onchange="sv(\'now\',this.value)"></label><label style="flex:1">پس‌انداز ماهانه<input type="number" inputmode="numeric" value="'+(s.monthly||"")+'" onchange="sv(\'monthly\',this.value)"></label></div>'+
+ '<div class="bar"><i style="width:'+p+'%"></i></div><div class="st">'+nf(Math.round(p))+'٪ راه رفته'+(mo?' · حدود '+nf(mo)+' ماه مانده':"")+'</div></div>'+
+ '<div class="cd"><div class="r"><input type="number" inputmode="numeric" id="dp" placeholder="مبلغ واریز جدید" style="flex:1"><button onclick="dep()">ثبت واریز</button></div>'+
+ s.log.map(function(l,i){return{l:l,i:i}}).slice(-8).reverse().map(function(x){return'<div class="t"><span class="st" style="flex:1">'+fa(x.l.d)+' · '+ed("sl",x.i,"a",nf(x.l.a))+'</span><button class="g" onclick="rm(function(){S.sav.now-='+x.l.a+';S.sav.log.splice('+x.i+',1)})">✕</button></div>'}).join("")+'</div>'}
+function sv(k,v){S.sav[k]=+v||0;save();render()}
+function dep(){var a=+$("#dp").value;if(!a)return;S.sav.log.push({d:td,a:a});S.sav.now=(+S.sav.now||0)+a;save();render()}
+/* REPORT */
+function bars(vals,labels,col){var m=Math.max.apply(null,vals.concat([1])),o='<svg viewBox="0 0 280 100" width="100%">';
+ vals.forEach(function(v,i){var h=v/m*60;o+='<rect x="'+(i*40+8)+'" y="'+(75-h)+'" width="26" height="'+h+'" rx="5" fill="'+col+'"/><text x="'+(i*40+21)+'" y="'+(70-h)+'" text-anchor="middle" font-size="10" fill="currentColor">'+nf(v)+'</text><text x="'+(i*40+21)+'" y="92" text-anchor="middle" font-size="9" fill="currentColor" opacity=".6">'+labels[i]+'</text>'});
+ return o+'</svg>'}
+function wk(){var d=new Date();return d.getFullYear()+"-W"+Math.ceil(((d-new Date(d.getFullYear(),0,1))/864e5+1)/7)}
+function vRep(){var ds=[6,5,4,3,2,1,0].map(day),lb=ds.map(function(k){return nf(new Date(k+"T12:00").getDate())});
+ var tv=ds.map(function(k){return S.tasks.filter(function(t){return t.done&&t.at==k}).length}),fv=ds.map(function(k){return S.focus[k]||0});
+ var ct2=S.tasks.filter(function(t){return t.done&&ds.indexOf(t.at)>-1&&t.tag=="core"}).length,al=tv.reduce(function(a,b){return a+b},0),r=S.rev[wk()]||{};
+ return'<h2>کارهای انجام‌شده (۷ روز)</h2><div class="cd">'+bars(tv,lb,"#0f9d8f")+'<div class="st">'+nf(ct2)+' از '+nf(al)+' کار CORE بود</div></div>'+
+ '<h2>جلسه‌های تمرکز</h2><div class="cd">'+bars(fv,lb,"#6d4bd1")+'</div><h2>عادت‌ها (۷ روز)</h2><div class="cd">'+S.habits.map(function(x){var c=ds.filter(function(k){return x.log[k]}).length;return'<div class="r"><span style="width:90px">'+esc(x.n)+'</span><div class="bar" style="flex:1"><i style="width:'+c/7*100+'%"></i></div><span class="st">'+nf(c)+'/۷</span></div>'}).join("")+'</div>'+
+ '<h2>مرور هفته</h2><div class="cd">'+[["a","یک چیز که خوب پیش رفت"],["b","یک چیز که گیر کرد"],["c","یک قدم برای هفته بعد"]].map(function(q){return'<textarea rows="2" style="margin-bottom:6px" placeholder="'+q[1]+'" onchange="rv(\''+q[0]+'\',this.value)">'+esc(r[q[0]]||"")+'</textarea>'}).join("")+'</div>'+
+ '<h2>اتصال به Google Sheets</h2><div class="cd"><div class="st">آدرس Web App و توکن را از راهنما بگذار.</div><input type="url" id="su" dir="ltr" placeholder="https://script.google.com/macros/s/.../exec" value="'+esc(SET.url||"")+'" style="margin:6px 0"><input type="text" id="sk" dir="ltr" placeholder="token" value="'+esc(SET.tok||"")+'"><div class="r" style="margin-top:8px"><button onclick="ss()">ذخیره و ارسال</button><button class="g" onclick="rs()">بازیابی از شیت</button><button class="g" onclick="csv()">CSV</button></div><div class="st" id="em"></div></div>'}
+function rv(k,v){var w=wk();S.rev[w]=S.rev[w]||{};S.rev[w][k]=v;save()}
+function ss(){SET={url:$("#su").value.trim(),tok:$("#sk").value.trim()};localStorage.setItem("bos-set",JSON.stringify(SET));push();$("#em").textContent="ارسال شد؛ شیت را چک کن."}
+async function rs(){if(!confirm("داده‌ی این دستگاه با نسخه‌ی شیت جایگزین شود؟"))return;$("#em").textContent=await pull(true)}
+function csv(){var q=function(x){return'"'+String(x==null?"":x).replace(/"/g,'""')+'"'},rows=[["type","date","title","detail"]];
+ S.tasks.forEach(function(t){rows.push(["task",t.date,t.t,t.tag+(t.done?" | done":"")])});
+ S.habits.forEach(function(h){Object.keys(h.log).forEach(function(k){rows.push(["habit",k,h.n,"1"])})});
+ S.sav.log.forEach(function(l){rows.push(["saving",l.d,"deposit",l.a])});
+ var a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+rows.map(function(r){return r.map(q).join(",")}).join("\n")],{type:"text/csv"}));a.download="bahareh-os-"+td+".csv";a.click()}
+init();
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(function(){});
+</script>
+</body>
+</html>
