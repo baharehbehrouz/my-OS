@@ -51,9 +51,14 @@ svg text{font-family:inherit}
 <div id="to"><span id="tm2"></span><button id="ub">برگردان</button></div>
 <nav><div id="nv"></div></nav>
 <script>
-var TABS=[["today","امروز"],["proj","پروژه‌ها"],["hab","عادت‌ها"],["cap","سرمایه"],["rep","گزارش"]];
+var TABS=[["today","امروز"],["proj","پروژه‌ها"],["hab","عادت‌ها"],["coach","کوچینگ"],["cap","سرمایه"],["rep","گزارش"]];
 var TG={core:"CORE",support:"SUPPORT",exp:"EXPERIMENT"},NX={core:"support",support:"exp",exp:"core"};
-var tab="today",S=null,SET={},timer=null,left=1500,saveT=null,toT=null,prevS=null;
+var tab="today",ctab="daily",S=null,SET={},timer=null,left=1500,saveT=null,toT=null,prevS=null;
+var DQS=["امروز چقدر به احساسات و نیازهای بدنم توجه داشتم؟","امروز چقدر با بدنم مهربان و محترمانه رفتار کردم؟","امروز چقدر کمتر بدنم را مقایسه و قضاوت کردم؟","امروز چقدر به انتخاب‌ها و خواسته‌هایم احترام گذاشتم؟"];
+var DQT=["امروز مهم‌ترین کاری که اگر انجامش بدهم، روزم جلو رفته چیست؟","الان چه چیزی دارد تمرکز و انرژی من را می‌خورد؟","امروز چه کاری انجام دادم که مرا به هدف اصلی‌ام نزدیک‌تر کرد؟"];
+var WQ=["این هفته واقعاً چه چیزی پیش رفت؟","چه چیزی را شروع کردم و تمام نکردم؟","چرا انجام نشد؟ مانع واقعی چه بود؟","بیشترین زمانم کجا مصرف شد؟","آیا کارهایم با اولویت اصلی‌ام هماهنگ بودند؟","هفته بعد چه چیزی را باید حذف کنم؟","هفته بعد یک خروجی اصلی من چیست؟"];
+var MQ=["این ماه چه حسی نسبت به خودم داشتم؟","چه چیزی بیشترین انرژی روانی را از من گرفت؟","درآمد این ماه چقدر بود؟","چه کاری واقعاً ارزش اقتصادی ایجاد کرد؟","Bina Data یک قدم واقعی جلو رفت یا فقط درباره‌اش فکر کردم؟","مهم‌ترین کاری که انجام دادم چه بود؟","چه چیزی را دوباره به تعویق انداختم؟","مهم‌ترین تصمیمی که باید می‌گرفتم چه بود؟","وضعیت خواب، سلامت، رابطه‌ها و خانواده چطور بود؟","اگر ماه بعد فقط یک چیز را بهتر کنم، آن چیست؟"];
+var QQ=["من کی هستم؟ (هویت، ارزش‌ها، تصویرم از خودم)","الان کجا هستم؟ (زندگی، خانواده، مسکن، شرایط شخصی)","وضعیت مالی من چیست؟ (درآمد، هزینه، دارایی، بدهی، امنیت مالی)","وضعیت حرفه‌ای من چیست؟ (کار، جایگاه، مشتری، درآمد)","Bina Data کجاست؟ (محصول، مشتری، نمونه‌کار، برند، درآمد)","انرژی و ظرفیت من چطور است؟ (خواب، تمرکز، زمان، فرسودگی)","واقعاً چه زندگی‌ای می‌خواهم؟","اولویت اصلی من چیست؟ (مهم‌ترین اهرم فصل بعد)","چه چیزی مانع من است؟","الگوی تصمیم‌گیری من چیست؟","کمال‌گرایی من کجا مانع است؟","از چه ریسکی می‌ترسم؟","چه شواهدی از توانمندی خودم دارم؟","چرا کارهایم رها می‌شوند؟","چه تغییراتی در زندگی‌ام لازم است؟","رابطه‌ام با خودم چطور است؟","نقاط قوت فعلی من چیست؟","سه ضعف اصلی من چیست؟","چه منابعی در اختیار دارم؟","نقطه شروع واقعی من چیست؟"];
 var $=function(s){return document.querySelector(s)};
 function lc(d){d=d||new Date();return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)}
 var td=lc();
@@ -66,7 +71,10 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return
 function def(){return{ts:0,tasks:[],inbox:[],focus:{},rev:{},
 projects:[{id:"p1",n:"Bina Data",tag:"core",next:"",pct:0},{id:"p2",n:"Product Discovery Agent",tag:"exp",next:"",pct:0},{id:"p3",n:"Dropshipping",tag:"exp",next:"",pct:0}],
 habits:["انگلیسی","ورزش","تغذیه","تمرکز"].map(function(n,i){return{id:"h"+i,n:n,log:{}}}),
-sav:{target:0,now:0,monthly:0,log:[]}}}
+sav:{target:0,now:0,monthly:0,log:[]},
+coach:{daily:{},weekly:{},monthly:{},quarterly:{}}}}
+function mk(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
+function qk(){var d=new Date();return d.getFullYear()+"-Q"+(Math.floor(d.getMonth()/3)+1)}
 function sync(t){$("#sy").textContent=t}
 function save(){S.ts=Date.now();try{localStorage.setItem("bos",JSON.stringify(S))}catch(e){}
  clearTimeout(saveT);sync("…");saveT=setTimeout(push,1200)}
@@ -97,7 +105,7 @@ function E(el,k,id,f){var v=el.textContent.trim(),L={t:S.tasks,p:S.projects,h:S.
  if(!v&&f!="step"&&f!="next"){render();return}o[f]=v;save()}
 function render(){
  $("#nv").innerHTML=TABS.map(function(t){return'<button class="'+(t[0]==tab?"on":"")+'" onclick="go(\''+t[0]+'\')">'+t[1]+'</button>'}).join("");
- $("#v").innerHTML=({today:vToday,proj:vProj,hab:vHab,cap:vCap,rep:vRep})[tab]()}
+ $("#v").innerHTML=({today:vToday,proj:vProj,hab:vHab,coach:vCoach,cap:vCap,rep:vRep})[tab]()}
 function go(t){tab=t;render();window.scrollTo(0,0)}
 function mm(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
 /* TODAY */
@@ -142,6 +150,30 @@ function vHab(){
  '<div class="cd"><div class="r"><input type="text" id="hn" style="flex:1" placeholder="عادت جدید"><button onclick="addH()">افزودن</button></div></div>'}
 function hg(id,k){S.habits.forEach(function(h){if(h.id==id){if(h.log[k])delete h.log[k];else h.log[k]=1}});save();render()}
 function addH(){var n=$("#hn").value.trim();if(!n)return;S.habits.push({id:uid(),n:n,log:{}});save();render()}
+/* COACH */
+function avg(a){var v=a.filter(function(x){return x});if(!v.length)return 0;return Math.round(v.reduce(function(s,x){return s+x},0)/v.length*10)/10}
+function scoreRow(period,id,idx,val){var h="";for(var i=1;i<=10;i++)h+='<button class="dot '+(val==i?"on":"")+'" style="width:22px" onclick="csc(\''+period+'\',\''+id+'\','+idx+','+i+')">'+i+'</button>';return'<div class="dots" style="flex-wrap:wrap">'+h+'</div>'}
+function cget(period,id){if(!S.coach[period][id])S.coach[period][id]=period=="daily"?{scores:[],texts:[]}:period=="quarterly"?{answers:[],priority:""}:{answers:[]};return S.coach[period][id]}
+function csc(period,id,idx,v){var e=cget(period,id);e.scores=e.scores||[];e.scores[idx]=(e.scores[idx]==v?0:v);save();render()}
+function ctxt(period,id,idx,v){var e=cget(period,id);e.texts?e.texts[idx]=v:(e.answers[idx]=v);save()}
+function cpri(id,v){cget("quarterly",id).priority=v;save()}
+function cSub(t,lbl){return'<button class="'+(ctab==t?"":"g")+'" onclick="ctab=\''+t+'\';render()">'+lbl+'</button>'}
+function vCoach(){
+ var h='<h2>کوچینگ روزانه</h2><div class="r" style="margin-bottom:8px">'+cSub("daily","روزانه · ۷ دقیقه")+cSub("weekly","هفتگی")+cSub("monthly","ماهانه")+cSub("quarterly","فصلی")+'</div>';
+ if(ctab=="daily"){
+  var ds=[6,5,4,3,2,1,0].map(day),av=ds.map(function(k){return avg((S.coach.daily[k]||{}).scores||[])});
+  var e=cget("daily",td);
+  h+='<div class="cd"><div class="st">میانگین این هفته</div>'+bars(av,ds.map(function(k){return nf(new Date(k+"T12:00").getDate())}),"#0f9d8f")+'</div>';
+  h+='<div class="cd"><div class="st">مراقبت از بدن — هرکدام از ۱ تا ۱۰</div>'+DQS.map(function(q,i){return'<div style="margin:10px 0"><div class="tt">'+q+'</div>'+scoreRow("daily",td,i,e.scores[i])+'</div>'}).join("")+'</div>';
+  h+='<div class="cd">'+DQT.map(function(q,i){return'<div style="margin-bottom:10px"><div class="tt">'+q+'</div><textarea rows="2" onchange="ctxt(\'daily\',\''+td+'\','+i+',this.value)">'+esc(e.texts[i]||"")+'</textarea></div>'}).join("")+'</div>'}
+ else if(ctab=="weekly"){var id=wk(),e=cget("weekly",id);
+  h+='<div class="cd">'+WQ.map(function(q,i){return'<div style="margin-bottom:10px"><div class="tt">'+q+'</div><textarea rows="2" onchange="ctxt(\'weekly\',\''+id+'\','+i+',this.value)">'+esc(e.answers[i]||"")+'</textarea></div>'}).join("")+'</div>'}
+ else if(ctab=="monthly"){var id=mk(),e=cget("monthly",id);
+  h+='<div class="cd">'+MQ.map(function(q,i){return'<div style="margin-bottom:10px"><div class="tt">'+q+'</div><textarea rows="2" onchange="ctxt(\'monthly\',\''+id+'\','+i+',this.value)">'+esc(e.answers[i]||"")+'</textarea></div>'}).join("")+'</div>'}
+ else{var id=qk(),e=cget("quarterly",id);
+  h+='<div class="cd f"><div class="st">قانون: فقط یک اولویت اصلی برای این فصل — نه پنج تا</div><input type="text" placeholder="اولویت اصلی فصل" value="'+esc(e.priority||"")+'" onchange="cpri(\''+id+'\',this.value)"></div>';
+  h+='<div class="cd">'+QQ.map(function(q,i){return'<div style="margin-bottom:10px"><div class="tt">'+q+'</div><textarea rows="2" onchange="ctxt(\'quarterly\',\''+id+'\','+i+',this.value)">'+esc(e.answers[i]||"")+'</textarea></div>'}).join("")+'</div>'}
+ return h}
 /* CAPITAL */
 function vCap(){var s=S.sav,p=s.target>0?Math.min(100,s.now/s.target*100):0,rest=s.target-s.now,mo=s.monthly>0&&rest>0?Math.ceil(rest/s.monthly):null;
  return'<h2>سرمایه تا خانه</h2><div class="cd"><div class="st">هدف: خانه ۱۱۰ متر+، ۲ خوابه، پارکینگ، انباری</div>'+
@@ -170,6 +202,10 @@ function csv(){var q=function(x){return'"'+String(x==null?"":x).replace(/"/g,'""
  S.tasks.forEach(function(t){rows.push(["task",t.date,t.t,t.tag+(t.done?" | done":"")])});
  S.habits.forEach(function(h){Object.keys(h.log).forEach(function(k){rows.push(["habit",k,h.n,"1"])})});
  S.sav.log.forEach(function(l){rows.push(["saving",l.d,"deposit",l.a])});
+ Object.keys(S.coach.daily).forEach(function(k){var e=S.coach.daily[k];rows.push(["coach-daily",k,"avg score",avg(e.scores||[])]);(e.texts||[]).forEach(function(t,i){if(t)rows.push(["coach-daily",k,DQT[i],t])})});
+ Object.keys(S.coach.weekly).forEach(function(k){(S.coach.weekly[k].answers||[]).forEach(function(t,i){if(t)rows.push(["coach-weekly",k,WQ[i],t])})});
+ Object.keys(S.coach.monthly).forEach(function(k){(S.coach.monthly[k].answers||[]).forEach(function(t,i){if(t)rows.push(["coach-monthly",k,MQ[i],t])})});
+ Object.keys(S.coach.quarterly).forEach(function(k){var e=S.coach.quarterly[k];if(e.priority)rows.push(["coach-quarterly",k,"اولویت اصلی",e.priority]);(e.answers||[]).forEach(function(t,i){if(t)rows.push(["coach-quarterly",k,QQ[i],t])})});
  var a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+rows.map(function(r){return r.map(q).join(",")}).join("\n")],{type:"text/csv"}));a.download="bahareh-os-"+td+".csv";a.click()}
 init();
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(function(){});
