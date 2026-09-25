@@ -21,6 +21,15 @@ function doPost(e){
   put('Habits',['date','habit'],hr);
   put('Savings',['date','amount'],(S.sav.log||[]).map(l=>[l.d,l.a]));
   put('Focus',['date','sessions'],Object.keys(S.focus||{}).map(d=>[d,S.focus[d]]));
+  const co=[], C=S.coach||{};
+  Object.keys(C.daily||{}).forEach(k=>{const e=C.daily[k],sc=(e.scores||[]).filter(x=>x);
+    co.push(['daily',k,'avg score', sc.length?(sc.reduce((a,b)=>a+b,0)/sc.length).toFixed(1):'']);
+    (e.texts||[]).forEach((t,i)=>{if(t)co.push(['daily',k,'q'+(i+1),t])})});
+  Object.keys(C.weekly||{}).forEach(k=>(C.weekly[k].answers||[]).forEach((t,i)=>{if(t)co.push(['weekly',k,'q'+(i+1),t])}));
+  Object.keys(C.monthly||{}).forEach(k=>(C.monthly[k].answers||[]).forEach((t,i)=>{if(t)co.push(['monthly',k,'q'+(i+1),t])}));
+  Object.keys(C.quarterly||{}).forEach(k=>{const e=C.quarterly[k];if(e.priority)co.push(['quarterly',k,'اولویت اصلی',e.priority]);
+    (e.answers||[]).forEach((t,i)=>{if(t)co.push(['quarterly',k,'q'+(i+1),t])})});
+  put('Coach',['period','key','question','answer'],co);
   const bk=sh('Backups'),today=Utilities.formatDate(new Date(),Session.getScriptTimeZone(),'yyyy-MM-dd');
   const last=bk.getLastRow()?bk.getRange(bk.getLastRow(),1).getValue():'';
   if(String(last).slice(0,10)!==today){const row=[today].concat(chunks.map(c=>c[0]));bk.getRange(bk.getLastRow()+1,1,1,row.length).setValues([row])}
